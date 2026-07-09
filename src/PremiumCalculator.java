@@ -1,38 +1,6 @@
 import java.util.Scanner;
 
 public class PremiumCalculator {
-
-    enum VehicleType {
-        BIKE(1, 300),
-        CAR(2, 500),
-        TRUCK(3, 800);
-
-        private final int id;
-        private final int baseRate;
-
-        VehicleType(int id, int baseRate) {
-            this.id = id;
-            this.baseRate = baseRate;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public int getBaseRate() {
-            return baseRate;
-        }
-
-        public static VehicleType fromId(int id) {
-            for (VehicleType type : VehicleType.values()) {
-                if (type.getId() == id) {
-                    return type;
-                }
-            }
-            throw new IllegalArgumentException("Invalid vehicle ID");
-        }
-    }
-
     private static final int CRASH_SURCHARGE = 150;
     private static final double YOUNG_DRIVER_SURCHARGE_PERCENT = 0.20;
     private static final int YOUNG_DRIVER_AGE_LIMIT = 25;
