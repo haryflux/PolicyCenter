@@ -30,4 +30,4 @@ bin/
 .DS_Store
 
 ### IDE - IntelliJ full folder ###
-.idea/git ls-files .idea
+.idea/
