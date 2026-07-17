@@ -32,8 +32,6 @@ public class PremiumCalculatorApp {
         sc.close();
     }
 
-    // ---------- Banner ----------
-
     private static void printRulesBanner() {
         System.out.println("================================================");
         System.out.println("      INSURANCE PREMIUM CALCULATOR");
@@ -149,7 +147,6 @@ public class PremiumCalculatorApp {
         }
     }
 
-    // ---------- Output ----------
 
     private static void printPremiumSummary(List<Policy> policies,
                                             StandardPremiumCalculator standardCalculator,

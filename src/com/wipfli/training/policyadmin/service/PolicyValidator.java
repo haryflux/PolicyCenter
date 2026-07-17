@@ -5,7 +5,7 @@ import com.wipfli.training.policyadmin.model.VehicleType;
 
 public class PolicyValidator {
 
-    private static final int MINIMUM_AGE = 1;
+    private static final int MINIMUM_AGE = 18;
     private static final int MAXIMUM_AGE = 100;
 
     public static boolean isValid(Policy policy) {
@@ -40,7 +40,7 @@ public class PolicyValidator {
 
     public static void validateAge(int age) {
         if (age < MINIMUM_AGE || age > MAXIMUM_AGE) {
-            throw new IllegalArgumentException("Age must be between 1 and 100.");
+            throw new IllegalArgumentException("Age must be between 18 and 100.");
         }
     }
 
