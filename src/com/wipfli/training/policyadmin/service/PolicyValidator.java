@@ -3,15 +3,21 @@ package com.wipfli.training.policyadmin.service;
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
 
+/**
+ * Utility class containing validation logic
+ * used during policy creation and input handling.
+ */
+
 public class PolicyValidator {
 
-    private static final int MINIMUM_AGE = 18;
-    private static final int MAXIMUM_AGE = 100;
+/**
+ * Performs complete policy validation.
+ * @param policy policy to validate
+ * @return true if validation succeeds
+ */
 
     public static boolean isValid(Policy policy) {
         validatePolicyNumber(policy.getPolicyNumber());
-        validateCustomerName(policy.getCustomerName());
-        validateAge(policy.getCustomerAge());
         validateVehicleType(policy.getVehicleType());
         validateClaims(policy.getPreviousClaims());
         return true;
@@ -29,18 +35,6 @@ public class PolicyValidator {
         }
         if (!policyNumber.matches("[A-Za-z0-9-]+")) {
             throw new IllegalArgumentException("Policy number must be alphanumeric.");
-        }
-    }
-
-    public static void validateCustomerName(String customerName) {
-        if (customerName == null || customerName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Customer name cannot be empty.");
-        }
-    }
-
-    public static void validateAge(int age) {
-        if (age < MINIMUM_AGE || age > MAXIMUM_AGE) {
-            throw new IllegalArgumentException("Age must be between 18 and 100.");
         }
     }
 
