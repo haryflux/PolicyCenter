@@ -7,6 +7,9 @@ import com.wipfli.training.policyadmin.service.NoClaimBonusCalculator;
 import com.wipfli.training.policyadmin.service.PolicyValidator;
 import com.wipfli.training.policyadmin.service.PremiumCalculable;
 import com.wipfli.training.policyadmin.service.StandardPremiumCalculator;
+import com.wipfli.training.policyadmin.model.CarPolicy;
+import com.wipfli.training.policyadmin.model.BikePolicy;
+import com.wipfli.training.policyadmin.model.TruckPolicy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,8 +58,9 @@ public class PremiumCalculatorApp {
                 case 4 -> renewPolicy(sc);
                 case 5 -> viewPolicyBreakdown(sc);
                 case 6 -> viewAllPolicies();
-                case 7 -> running = false;
-                default -> System.out.println("Invalid option. Choose a number from 1 to 7.");
+                case 7 -> demonstratePolymorphism();      // 👈 NEW
+                case 8 -> running = false;                // 👈 Exit moved to 8
+                default -> System.out.println("Invalid option. Choose a number from 1 to 8.");
             }
         }
     }
@@ -69,7 +73,8 @@ public class PremiumCalculatorApp {
         System.out.println("4. Renew Policy");
         System.out.println("5. View Policy Premium Breakdown");
         System.out.println("6. View All Policies");
-        System.out.println("7. Exit");
+        System.out.println("7. Run Polymorphism Demo");
+        System.out.println("8. Exit");
         System.out.println("=======================================");
     }
 
@@ -92,13 +97,27 @@ public class PremiumCalculatorApp {
         VehicleType vehicleType = readVehicleType(sc);
         int claims = readClaims(sc);
 
-        Policy policy = new Policy(policyNumber, customer, vehicleType, claims);
-        PolicyValidator.isValid(policy);
+        Policy policy;
+        switch (vehicleType) {
+            case CAR -> {
+                String registration = readRegistrationNumber(sc);
+                policy = new CarPolicy(policyNumber, customer, registration, claims);
+            }
+            case BIKE -> {
+                int engineCC = readEngineCC(sc);
+                policy = new BikePolicy(policyNumber, customer, engineCC, claims);
+            }
+            case TRUCK -> {
+                double loadTons = readLoadCapacity(sc);
+                policy = new TruckPolicy(policyNumber, customer, loadTons, claims);
+            }
+            default -> throw new IllegalArgumentException("Unknown vehicle type: " + vehicleType);
+        }
 
+        PolicyValidator.isValid(policy);
         policies.add(policy);
-        System.out.println("Created " + policy.getPolicyNumber() + " for " + customer.getName()
-                + " (age " + customer.getAge() + "), " + policy.getVehicleType()
-                + ", " + policy.getPreviousClaims() + " claim(s) - status " + policy.getStatus());
+
+        System.out.println("Created " + policy.getPolicyDetails());
     }
 
     private static void recordClaimOnPolicy(Scanner sc) {
@@ -149,6 +168,20 @@ public class PremiumCalculatorApp {
             System.out.println(policy);
         }
         printHashSetCheck();
+    }
+
+    private static void demonstratePolymorphism() {
+        System.out.println("\n ========== POLYMORPHISM DEMO ==========");
+
+        List<Policy> demoPolicies = new ArrayList<>();
+        demoPolicies.add(new CarPolicy("POL-2001", new Customer("Hari", 22), "MP-47-5774"));
+        demoPolicies.add(new BikePolicy("POL-2002", new Customer("Atharv", 30), 150));
+        demoPolicies.add(new TruckPolicy("POL-2003", new Customer("Gaurav", 40), 8.0));
+
+        for (Policy p : demoPolicies) {
+            System.out.println(p.getPolicyDetails());
+        }
+        System.out.println("======================================================");
     }
 
     // Lookup helper
@@ -247,6 +280,33 @@ public class PremiumCalculatorApp {
                 System.out.println("Validation Error: Claims must be a number.");
             } catch (IllegalArgumentException e) {
                 System.out.println("Validation Error: " + e.getMessage());
+            }
+        }
+    }
+
+    private static String readRegistrationNumber(Scanner sc) {
+        System.out.print("Car Registration Number (e.g. KA-05-1234): ");
+        return sc.nextLine().trim();
+    }
+
+    private static int readEngineCC(Scanner sc) {
+        while (true) {
+            try {
+                System.out.print("Bike Engine Size (CC): ");
+                return Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Validation Error: Engine CC must be a number.");
+            }
+        }
+    }
+
+    private static double readLoadCapacity(Scanner sc) {
+        while (true) {
+            try {
+                System.out.print("Truck Load Capacity (tons): ");
+                return Double.parseDouble(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Validation Error: Load capacity must be a number.");
             }
         }
     }
