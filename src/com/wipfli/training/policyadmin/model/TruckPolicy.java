@@ -9,15 +9,10 @@ package com.wipfli.training.policyadmin.model;
 
 public class TruckPolicy extends Policy {
 
-    // This is the one extra piece of info that ONLY a truck policy needs.
     private final double loadCapacityTons;
 
     /**
-     * Creates a truck policy with no prior claim history.
-     *
-     * @param policyNumber     unique policy identifier
-     * @param customer         policy holder
-     * @param loadCapacityTons the truck's load capacity in tons, e.g. 8.0
+     * Creates a truck policy with no prior claim history (starts at 0 claims).
      */
 
     public TruckPolicy(String policyNumber, Customer customer, double loadCapacityTons) {
@@ -26,17 +21,17 @@ public class TruckPolicy extends Policy {
     }
 
     /**
-     * Returns the truck's load capacity in tons.
+     * Creates a truck policy that already carries some claim history.
      */
+
+    public TruckPolicy(String policyNumber, Customer customer, double loadCapacityTons, int previousClaims) {
+        super(policyNumber, customer, VehicleType.TRUCK, previousClaims);
+        this.loadCapacityTons = loadCapacityTons;
+    }
 
     public double getLoadCapacityTons() {
         return loadCapacityTons;
     }
-
-    /**
-     * A truck policy describes itself with all the shared details
-     * plus its own load capacity.
-     */
 
     @Override
     public String getPolicyDetails() {

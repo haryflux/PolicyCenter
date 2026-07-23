@@ -8,34 +8,29 @@ package com.wipfli.training.policyadmin.model;
 
 public class CarPolicy extends Policy {
 
-    // This is the one extra piece of info that ONLY a car policy needs.
     private final String registrationNumber;
 
     /**
-     * Creates a car policy with no prior claim history.
-     *
-     * @param policyNumber       unique policy identifier
-     * @param customer           policy holder
-     * @param registrationNumber the car's registration number, e.g. "MP-47-5774"
+     * Creates a car policy with no prior claim history (starts at 0 claims).
      */
 
     public CarPolicy(String policyNumber, Customer customer, String registrationNumber) {
-        super(policyNumber, customer, VehicleType.CAR);
+        super(policyNumber, customer, VehicleType.CAR);           // parent's 3-arg constructor
         this.registrationNumber = registrationNumber;
     }
 
     /**
-     * Returns the car's registration number.
+     * Creates a car policy that already carries some claim history.
      */
+
+    public CarPolicy(String policyNumber, Customer customer, String registrationNumber, int previousClaims) {
+        super(policyNumber, customer, VehicleType.CAR, previousClaims);  // parent's 4-arg constructor
+        this.registrationNumber = registrationNumber;
+    }
 
     public String getRegistrationNumber() {
         return registrationNumber;
     }
-
-    /**
-     * A car policy describes itself with all the shared details
-     * plus its own registration number.
-     */
 
     @Override
     public String getPolicyDetails() {

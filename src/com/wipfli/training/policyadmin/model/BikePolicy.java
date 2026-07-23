@@ -1,21 +1,18 @@
 package com.wipfli.training.policyadmin.model;
 
 /**
- * Represents a bike insurance policy.
- * Along with the common policy details, it keeps track of the bike's engine size in CC.
+ * Represents an insurance policy for a bike.
+ * In addition to the standard policy information, this class
+ * stores the bike's engine capacity (CC), which can be used
+ * when calculating premiums or displaying vehicle details.
  */
 
 public class BikePolicy extends Policy {
 
-    // This is the one extra piece of info that ONLY a bike policy needs.
     private final int engineCC;
 
     /**
-     * Creates a bike policy with no prior claim history.
-     *
-     * @param policyNumber unique policy identifier
-     * @param customer     policy holder
-     * @param engineCC     the bike's engine size in cc, e.g. 150
+     * Creates a bike policy with no prior claim history (starts at 0 claims).
      */
 
     public BikePolicy(String policyNumber, Customer customer, int engineCC) {
@@ -24,17 +21,17 @@ public class BikePolicy extends Policy {
     }
 
     /**
-     * Returns the bike's engine size in cc.
+     * Creates a bike policy that already carries some claim history.
      */
+
+    public BikePolicy(String policyNumber, Customer customer, int engineCC, int previousClaims) {
+        super(policyNumber, customer, VehicleType.BIKE, previousClaims);
+        this.engineCC = engineCC;
+    }
 
     public int getEngineCC() {
         return engineCC;
     }
-
-    /**
-     * A bike policy describes itself with all the shared details
-     * plus its own engine size.
-     */
 
     @Override
     public String getPolicyDetails() {
