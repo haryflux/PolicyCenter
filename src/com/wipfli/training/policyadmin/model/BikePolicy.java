@@ -35,10 +35,6 @@ public class BikePolicy extends Policy {
 
     @Override
     public String getPolicyDetails() {
-        return "Policy " + getPolicyNumber()
-                + " | Customer: " + getCustomer().getName()
-                + " | Status: " + getStatus()
-                + " | Vehicle: " + getVehicleType()
-                + " | Engine: " + engineCC + " CC";
+        return baseDetails() + " | Engine: " + engineCC + " CC";
     }
 }

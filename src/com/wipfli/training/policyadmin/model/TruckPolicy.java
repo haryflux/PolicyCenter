@@ -35,10 +35,6 @@ public class TruckPolicy extends Policy {
 
     @Override
     public String getPolicyDetails() {
-        return "Policy " + getPolicyNumber()
-                + " | Customer: " + getCustomer().getName()
-                + " | Status: " + getStatus()
-                + " | Vehicle: " + getVehicleType()
-                + " | Load capacity: " + loadCapacityTons + " tons";
+        return baseDetails() + " | Load capacity: " + loadCapacityTons + " tons";
     }
 }

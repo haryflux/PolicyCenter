@@ -50,6 +50,20 @@ public abstract class Policy {
 
     public abstract String getPolicyDetails();
 
+    /**
+     * The part of the description that's the same for every policy
+     * (number, customer, status, vehicle). Subclasses call this and
+     * just add their own extra bit, so we don't want to repeat these lines everywhere.
+     *
+     * @return the shared part of a policy's details
+     */
+
+    public String baseDetails() {
+        return "Policy " + getPolicyNumber()
+                + " | Customer: " + getCustomer().getName()
+                + " | Status: " + getStatus()
+                + " | Vehicle: " + getVehicleType();
+    }
     // Getters
 
     public String getPolicyNumber() {

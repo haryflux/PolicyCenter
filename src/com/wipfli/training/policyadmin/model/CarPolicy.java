@@ -34,10 +34,6 @@ public class CarPolicy extends Policy {
 
     @Override
     public String getPolicyDetails() {
-        return "Policy " + getPolicyNumber()
-                + " | Customer: " + getCustomer().getName()
-                + " | Status: " + getStatus()
-                + " | Vehicle: " + getVehicleType()
-                + " | Registration: " + registrationNumber;
+        return baseDetails() + " | Registration: " + registrationNumber;
     }
 }
