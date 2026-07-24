@@ -7,7 +7,7 @@ import java.util.Objects;
  * This class owns and enforces policy business rules.
  * Status transitions and claim updates can happen only through controlled methods.
  */
-public class Policy {
+public abstract class Policy {
 
     private final String policyNumber;
     private final Customer customer;
@@ -15,6 +15,18 @@ public class Policy {
     private int previousClaims;
     private PolicyStatus status;
 
+    /**
+     * Creates a brand-new policy that has no claim history yet.
+     * Handy for the normal case where a fresh customer signs up with zero claims.
+     * Simply forwards to the full constructor with previousClaims set to 0.
+     * @param policyNumber unique policy identifier
+     * @param customer     policy holder
+     * @param vehicleType  insured vehicle type
+     */
+
+    public Policy(String policyNumber, Customer customer, VehicleType vehicleType) {
+        this(policyNumber, customer, vehicleType, 0);
+    }
 
     /**
      * Creates a new policy in ACTIVE state.
@@ -22,7 +34,7 @@ public class Policy {
      * @param policyNumber unique policy identifier
      * @param customer policy holder
      * @param vehicleType insured vehicle type
-     * @param previousClaims historical claim count
+     * @param previousClaims historical claim count already on record
      */
 
     public Policy(String policyNumber, Customer customer, VehicleType vehicleType, int previousClaims) {
@@ -36,6 +48,22 @@ public class Policy {
         this.status = PolicyStatus.ACTIVE;
     }
 
+    public abstract String getPolicyDetails();
+
+    /**
+     * The part of the description that's the same for every policy
+     * (number, customer, status, vehicle). Subclasses call this and
+     * just add their own extra bit, so we don't want to repeat these lines everywhere.
+     *
+     * @return the shared part of a policy's details
+     */
+
+    public String baseDetails() {
+        return "Policy " + getPolicyNumber()
+                + " | Customer: " + getCustomer().getName()
+                + " | Status: " + getStatus()
+                + " | Vehicle: " + getVehicleType();
+    }
     // Getters
 
     public String getPolicyNumber() {
