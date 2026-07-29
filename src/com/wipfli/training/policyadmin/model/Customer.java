@@ -1,5 +1,6 @@
 package com.wipfli.training.policyadmin.model;
 
+import com.wipfli.training.policyadmin.exception.InvalidPolicyDataException;
 /**
  * Represents a customer who owns an insurance policy.
  * A Customer is immutable after creation. Once validated and created, the customer's name and age cannot be changed.
@@ -49,13 +50,13 @@ public class Customer {
 
     private static void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Customer name cannot be blank.");
+            throw new InvalidPolicyDataException("N/A", "Customer name cannot be blank.");
         }
     }
 
     private static void validateAge(int age) {
         if (age < MINIMUM_AGE || age > MAXIMUM_AGE) {
-            throw new IllegalArgumentException("Customer age must be between 18 and 100.");
+            throw new InvalidPolicyDataException("N/A", "Customer age must be between 18 and 100.");
         }
     }
 }
