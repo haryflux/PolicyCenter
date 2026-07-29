@@ -58,8 +58,8 @@ public class PremiumCalculatorApp {
                 case 4 -> renewPolicy(sc);
                 case 5 -> viewPolicyBreakdown(sc);
                 case 6 -> viewAllPolicies();
-                case 7 -> demonstratePolymorphism();      // 👈 NEW
-                case 8 -> running = false;                // 👈 Exit moved to 8
+                case 7 -> demonstratePolymorphism();
+                case 8 -> running = false;
                 default -> System.out.println("Invalid option. Choose a number from 1 to 8.");
             }
         }
