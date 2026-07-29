@@ -1,5 +1,7 @@
 package com.wipfli.training.policyadmin.model;
 
+import java.time.LocalDate;
+
 /**
  * Represents an insurance policy for a bike.
  * In addition to the standard policy information, this class
@@ -15,8 +17,8 @@ public class BikePolicy extends Policy {
      * Creates a bike policy with no prior claim history (starts at 0 claims).
      */
 
-    public BikePolicy(String policyNumber, Customer customer, int engineCC) {
-        super(policyNumber, customer, VehicleType.BIKE);
+    public BikePolicy(String policyNumber, Customer customer, LocalDate expiryDate, int engineCC) {
+        super(policyNumber, customer, VehicleType.BIKE, expiryDate);
         this.engineCC = engineCC;
     }
 
@@ -24,8 +26,8 @@ public class BikePolicy extends Policy {
      * Creates a bike policy that already carries some claim history.
      */
 
-    public BikePolicy(String policyNumber, Customer customer, int engineCC, int previousClaims) {
-        super(policyNumber, customer, VehicleType.BIKE, previousClaims);
+    public BikePolicy(String policyNumber, Customer customer, LocalDate expiryDate, int engineCC, int previousClaims) {
+        super(policyNumber, customer, VehicleType.BIKE, expiryDate, previousClaims);
         this.engineCC = engineCC;
     }
 
