@@ -20,6 +20,7 @@ public class TruckPolicy extends Policy {
 
     public TruckPolicy(String policyNumber, Customer customer, LocalDate expiryDate, double loadCapacityTons) {
         super(policyNumber, customer, VehicleType.TRUCK, expiryDate);
+        validateTruckDriverAge(policyNumber, customer);
         this.loadCapacityTons = loadCapacityTons;
     }
 
@@ -29,6 +30,7 @@ public class TruckPolicy extends Policy {
 
     public TruckPolicy(String policyNumber, Customer customer, LocalDate expiryDate, double loadCapacityTons, int previousClaims) {
         super(policyNumber, customer, VehicleType.TRUCK, expiryDate, previousClaims);
+        validateTruckDriverAge(policyNumber, customer);
         this.loadCapacityTons = loadCapacityTons;
     }
 
