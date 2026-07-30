@@ -20,7 +20,7 @@ public class Customer {
      *
      * @param name customer's name
      * @param age customer's age
-     * @throws IllegalArgumentException if name is blank or age is invalid
+     * @throws InvalidPolicyDataException if name is blank or age is outside the range of 18 to 100
      */
 
 
