@@ -52,6 +52,11 @@ public class Customer {
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidPolicyDataException("N/A", "Customer name cannot be blank.");
         }
+        for (char c : name.toCharArray()) {
+            if (!Character.isLetter(c) && c != ' ') {
+                throw new InvalidPolicyDataException("N/A", "Customer name can only contain letters and spaces.");
+            }
+        }
     }
 
     private static void validateAge(int age) {
