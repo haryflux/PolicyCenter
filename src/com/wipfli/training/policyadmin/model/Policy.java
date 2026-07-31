@@ -17,7 +17,7 @@ public abstract class Policy {
     private final String policyNumber;
     private final Customer customer;
     private final VehicleType vehicleType;
-    private final LocalDate expiryDate;   // when this policy runs out
+    private final LocalDate expiryDate;
     private int previousClaims;
     private PolicyStatus status;
 
@@ -77,7 +77,7 @@ public abstract class Policy {
         return status;
     }
 
-    // Controlled mutation: status
+    // policy status can change only through business methods like renew(), expire() etc.
 
     /** Marks the policy as expired. Only an ACTIVE policy can expire. */
     public void expire() {
@@ -95,7 +95,7 @@ public abstract class Policy {
      * @param today the date renewal is being attempted
      */
     public void renew(LocalDate today) {
-        // must still be ACTIVE
+        // Should be active atleast
         if (!isActive()) {
             throw new IllegalStatusChangeException(policyNumber,
                     "cannot renew a policy that is " + status);
@@ -118,7 +118,7 @@ public abstract class Policy {
         status = PolicyStatus.RENEWED;
     }
 
-    // Controlled mutation: claims
+    // Claims can be updated only through dedicated methods that validate business rules.
 
     /** Records a new claim (increases the count by one). */
     public void recordClaim() {
