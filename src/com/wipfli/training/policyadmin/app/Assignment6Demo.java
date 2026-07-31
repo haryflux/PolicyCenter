@@ -14,11 +14,7 @@ import com.wipfli.training.policyadmin.service.PremiumCalculable;
 
 import java.time.LocalDate;
 
-/**
- * A demo that tries to break every rule one by one.
- * Even when things go wrong, the program catches the error and keeps
- * running till the last line. I use a fixed date so results stay the same.
- */
+
 final class Assignment6Demo {
 
     private static final PremiumCalculable premium = new NoClaimBonusCalculator();
@@ -28,7 +24,6 @@ final class Assignment6Demo {
         PolicyRegister register = new PolicyRegister();
         Policy good = null;
 
-        // Make one good policy first so we have something to use later
         System.out.println("\n--- Creating policies ---");
         boolean ok = false;
         try {
@@ -66,7 +61,7 @@ final class Assignment6Demo {
             printRefused(e);
         }
 
-        // Rule 3: looking up a number that isn't there
+        // Rule 3: looking up a policy number that is not  there
         try {
             register.findByNumber("POL-9999");
         } catch (PolicyNotFoundException e) {
@@ -76,7 +71,7 @@ final class Assignment6Demo {
 
         System.out.println("\n--- Renewal ---");
 
-        // Rule 4: renewing way too early
+        // Rule 4: renewing too early
         ok = false;
         try {
             good.renew(today);
@@ -103,7 +98,7 @@ final class Assignment6Demo {
 
         System.out.println("\n--- Status ---");
 
-        // Rule 6: expire it, then try to renew the expired one
+        // Rule 6: expiring it, then try to renew the expired one
         ok = false;
         try {
             good.expire();
@@ -125,12 +120,9 @@ final class Assignment6Demo {
             System.out.println("   caused by -> " + e.getCause());
         }
 
-        // The whole point: everything above went wrong, but we still got here
         System.out.println("\nProgram finished normally.");
     }
 
-    // Reads a number that came as text. If it's not a number, throw our own
-    // error but keep the original one as the cause so we don't lose it.
     private static double parseLoad(String number, String text) {
         try {
             return Double.parseDouble(text);
@@ -139,7 +131,7 @@ final class Assignment6Demo {
         }
     }
 
-    // Small helper so all my error lines look the same
+    // Small helper function so all the error lines look the same
     private static void printRefused(PolicyBusinessException e) {
         System.out.println("REFUSED [" + e.getClass().getSimpleName() + "] "
                 + e.getPolicyNumber() + ": " + e.getMessage());

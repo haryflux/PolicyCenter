@@ -40,7 +40,7 @@ public class PremiumCalculatorApp {
         sc.close();
     }
 
-    // Menu loop - the ONE place where we catch business failures.
+    // Menu loop - It is where we catch the errors
     private static void runMenuLoop(Scanner sc) {
         boolean running = true;
         while (running) {
@@ -91,7 +91,7 @@ public class PremiumCalculatorApp {
         }
     }
 
-    // Menu actions (they THROW; the runMenuLoop catches)
+    // Menu actions (this THROW; the runMenuLoop catches)
 
     private static void createPolicy(Scanner sc) {
         System.out.print("Policy Number: ");
@@ -158,14 +158,12 @@ public class PremiumCalculatorApp {
     }
 
     // Lookup helper
-
     private static String askPolicyNumber(Scanner sc) {
         System.out.print("Enter Policy Number: ");
         return sc.nextLine().trim();
     }
 
     // Banner
-
     private static void printRulesBanner() {
         System.out.println("================================================");
         System.out.println("      INSURANCE PREMIUM CALCULATOR");
@@ -178,12 +176,11 @@ public class PremiumCalculatorApp {
     }
 
     // Input reading
-
     private static Customer readCustomer(Scanner sc) {
         System.out.print("Customer Name: ");
         String name = sc.nextLine().trim();
         int age = readInt(sc, "Customer Age: ");
-        return new Customer(name, age);          // may throw InvalidPolicyDataException
+        return new Customer(name, age);
     }
 
     private static VehicleType readVehicleType(Scanner sc) {
@@ -232,7 +229,6 @@ public class PremiumCalculatorApp {
     }
 
     // Output
-
     private static void printPolicyBreakdown(Policy policy) {
         int baseRate = standardCalculator.getBaseRate(policy);
         double youngSurcharge = standardCalculator.getYoungDriverSurcharge(policy);
