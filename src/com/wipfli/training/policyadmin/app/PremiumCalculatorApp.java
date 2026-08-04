@@ -55,7 +55,6 @@ public class PremiumCalculatorApp {
                     case 4 -> renewPolicy(sc);
                     case 5 -> viewPolicyBreakdown(sc);
                     case 6 -> viewAllPolicies();
-                    case 7 -> Assignment6Demo.run();
                     case 8 -> running = false;
                     default -> System.out.println("Invalid option. Choose a number from 1 to 8.");
                 }
