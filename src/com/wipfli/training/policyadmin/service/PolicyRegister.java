@@ -23,8 +23,11 @@ public class PolicyRegister {
 
 
     private final Map<String, Policy> policies = new HashMap<>();
+
     private final Map<String, List<Policy>> policiesByCustomer = new HashMap<>();
+
     private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
+
     private final TreeMap<LocalDate, List<Policy>> policiesByExpiryDate = new TreeMap<>();
 
     /**
@@ -103,25 +106,21 @@ public class PolicyRegister {
     }
 
     /**
-     * Returns all policies that will expire within the given number of days from today.
+     * Returns all policies that will expire within the given number of days from the start date.
      * The list is sorted by expiry date. (nearest first)
      * Returns an empty list if none are found.
+     * Using subMap so the TreeMap gives us only the dates in range directly.
      */
 
-    public List<Policy> findExpiringWithin(int days, LocalDate today) {
-        LocalDate cutoff = today.plusDays(days);
+    public List<Policy> findExpiringWithin(int days, LocalDate from) {
+        LocalDate cutoff = from.plusDays(days);
         List<Policy> result = new ArrayList<>();
 
-        // TreeMap keeps dates sorted, so policies are processed in expiry date order.
-        for (Map.Entry<LocalDate, List<Policy>> entry : policiesByExpiryDate.entrySet()) {
-            LocalDate expiry = entry.getKey();
-
-        // Include policies expiring between today and the cutoff date.
-            if (!expiry.isBefore(today) && !expiry.isAfter(cutoff)) {
-                for (Policy p : entry.getValue()) {
-                    result.add(p);
-                }
-            }
+    // subMap grabs only the dates between 'from' and 'cutoff'.
+    // 'true, true' means both ends are included.
+        for (List<Policy> policiesOnDate : policiesByExpiryDate.subMap
+                (from, true, cutoff, true).values()) {
+            result.addAll(policiesOnDate);
         }
         return result;
     }
