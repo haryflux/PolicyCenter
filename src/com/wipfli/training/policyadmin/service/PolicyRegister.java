@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.EnumMap;
 
 /**
  * Stores policies and provides quick ways to find them
@@ -26,7 +27,8 @@ public class PolicyRegister {
 
     private final Map<String, List<Policy>> policiesByCustomer = new HashMap<>();
 
-    private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
+//    private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
+     private final Map<VehicleType, List<Policy>> policiesByVehicleType = new EnumMap<>(VehicleType.class);
 
     private final TreeMap<LocalDate, List<Policy>> policiesByExpiryDate = new TreeMap<>();
 
@@ -127,7 +129,7 @@ public class PolicyRegister {
 
     /**
      * Calculates the total premium by each vehicle type.
-     * Uses basic foreach loops to group and add premiums.
+     * Uses basic for loops to group and add premiums.
      */
 
     public Map<VehicleType, Double> totalPremiumByVehicleType() {

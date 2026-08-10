@@ -86,7 +86,7 @@ public class PremiumCalculatorApp {
                 LocalDate.of(2027, 2, 5), 12.0, 1));
 
         register.add(new CarPolicy("107", new Customer("Sara", 32),
-                LocalDate.of(2026, 8, 30), "KA-05-1234", 3));
+                LocalDate.of(2026, 8, 30), "MP-09-1234", 3));
     }
 
     private void printMenu() {
@@ -99,7 +99,7 @@ public class PremiumCalculatorApp {
         System.out.println("6. Exit");
     }
 
-    // Handlers - each method is responsible for one action done by the user
+    //Multiple Handlers - each method is responsible for one action done by the user
 
     /**
      * Collects policy information from the user, creates the appropriate
@@ -212,8 +212,7 @@ public class PremiumCalculatorApp {
         }
     }
 
-    // Helper methods used for displaying policy information.
-
+    // These are Helper methods which are used for displaying policy information.
     /**
      * Shows basic details of a policy in one line.
      */
@@ -235,8 +234,7 @@ public class PremiumCalculatorApp {
                 + e.getPolicyNumber() + ": " + e.getMessage());
     }
 
-    // Methods used to read input from the user.
-
+    // These methods are used to read input from the user.
     /**
      * Collects customer information from the user.
      */
