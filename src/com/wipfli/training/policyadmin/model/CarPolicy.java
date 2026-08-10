@@ -1,5 +1,7 @@
 package com.wipfli.training.policyadmin.model;
 
+import java.time.LocalDate;
+
 /**
  * Represents an insurance policy for a car.
  * In addition to the common policy details, this class stores
@@ -14,8 +16,8 @@ public class CarPolicy extends Policy {
      * Creates a car policy with no prior claim history (starts at 0 claims).
      */
 
-    public CarPolicy(String policyNumber, Customer customer, String registrationNumber) {
-        super(policyNumber, customer, VehicleType.CAR);           // parent's 3-arg constructor
+    public CarPolicy(String policyNumber, Customer customer, LocalDate expiryDate, String registrationNumber) {
+        super(policyNumber, customer, VehicleType.CAR, expiryDate);
         this.registrationNumber = registrationNumber;
     }
 
@@ -23,8 +25,8 @@ public class CarPolicy extends Policy {
      * Creates a car policy that already carries some claim history.
      */
 
-    public CarPolicy(String policyNumber, Customer customer, String registrationNumber, int previousClaims) {
-        super(policyNumber, customer, VehicleType.CAR, previousClaims);  // parent's 4-arg constructor
+    public CarPolicy(String policyNumber, Customer customer, LocalDate expiryDate, String registrationNumber, int previousClaims) {
+        super(policyNumber, customer, VehicleType.CAR, expiryDate, previousClaims);
         this.registrationNumber = registrationNumber;
     }
 
@@ -34,10 +36,6 @@ public class CarPolicy extends Policy {
 
     @Override
     public String getPolicyDetails() {
-        return "Policy " + getPolicyNumber()
-                + " | Customer: " + getCustomer().getName()
-                + " | Status: " + getStatus()
-                + " | Vehicle: " + getVehicleType()
-                + " | Registration: " + registrationNumber;
+        return baseDetails() + " | Registration: " + registrationNumber;
     }
 }
