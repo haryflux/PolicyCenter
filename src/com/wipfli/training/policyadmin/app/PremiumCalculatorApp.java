@@ -34,6 +34,7 @@ public class PremiumCalculatorApp {
     private final PolicyRegister register = new PolicyRegister();
     private final StandardPremiumCalculator standardCalculator = new StandardPremiumCalculator();
     private final Scanner sc = new Scanner(System.in);
+    private static final LocalDate REFERENCE_DATE = LocalDate.of(2026, 8, 9);
 
     public static void main(String[] args) {
         new PremiumCalculatorApp().run();
@@ -66,29 +67,21 @@ public class PremiumCalculatorApp {
     /**
      * Demo Hardcoded Data for checking menu options
      */
+
     private void seedData() {
-        register.add(new CarPolicy("101", new Customer("Hari", 24),
-                LocalDate.of(2026, 8, 25), "MP-47-5774", 2));
-
-        register.add(new BikePolicy("102", new Customer("Hari", 24),
-                LocalDate.of(2027, 1, 15), 150, 1));
-
-        register.add(new TruckPolicy("103", new Customer("Ritesh", 35),
-                LocalDate.of(2026, 8, 20), 8.0, 0));
-
-        register.add(new CarPolicy("104", new Customer("Gaurav", 40),
-                LocalDate.of(2026, 9, 1), "MH-12-9999", 2));
-
-        register.add(new BikePolicy("105", new Customer("Atharv", 28),
-                LocalDate.of(2026, 9, 10), 200, 0));
-
-        register.add(new TruckPolicy("106", new Customer("Ritesh", 35),
-                LocalDate.of(2027, 2, 5), 12.0, 1));
-
-        register.add(new CarPolicy("107", new Customer("Sara", 32),
-                LocalDate.of(2026, 8, 30), "MP-09-1234", 3));
+        register.add(new CarPolicy("POL-2001", new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 8, 15), "REG-2001", 1));
+        register.add(new TruckPolicy("POL-2002", new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 9, 1), 8.0, 0));
+        register.add(new BikePolicy("POL-2003", new Customer("Meena Iyer", 34),
+                LocalDate.of(2026, 8, 20), 150, 2));
+        register.add(new CarPolicy("POL-2004", new Customer("Ajay Verma", 41),
+                LocalDate.of(2027, 1, 10), "REG-2004", 0));
+        register.add(new BikePolicy("POL-2005", new Customer("Sneha Rao", 29),
+                LocalDate.of(2026, 8, 25), 200, 0));
+        register.add(new CarPolicy("POL-2006", new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 12, 1), "REG-2006", 3));
     }
-
     private void printMenu() {
         System.out.println("\n===== Policy Register =====");
         System.out.println("1. Add policy");
