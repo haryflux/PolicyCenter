@@ -10,7 +10,7 @@ import com.wipfli.training.policyadmin.model.TruckPolicy;
 import com.wipfli.training.policyadmin.model.VehicleType;
 import com.wipfli.training.policyadmin.service.PolicyRegister;
 import com.wipfli.training.policyadmin.service.PolicyValidator;
-import com.wipfli.training.policyadmin.service.StandardPremiumCalculator;
+import com.wipfli.training.policyadmin.service.NoClaimBonusCalculator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -29,10 +29,11 @@ import java.util.Scanner;
  * are handled by dedicated classes to keep this class focused on the
  * flow of the application.
  */
+
 public class PremiumCalculatorApp {
 
     private final PolicyRegister register = new PolicyRegister();
-    private final StandardPremiumCalculator standardCalculator = new StandardPremiumCalculator();
+    private final NoClaimBonusCalculator noClaimCalculator = new NoClaimBonusCalculator();
     private final Scanner sc = new Scanner(System.in);
     private static final LocalDate REFERENCE_DATE = LocalDate.of(2026, 8, 9);
 
@@ -57,31 +58,64 @@ public class PremiumCalculatorApp {
                 case 3 -> handleViewByVehicleType();
                 case 4 -> handleViewExpiringSoon();
                 case 5 -> handleViewSummary();
-                case 6 -> running = false;
-                default -> System.out.println("That is not a valid option. Pick 1-6.");
+                // Assignment 8 - stream based queries
+                case 6 -> handleFindByNumber();
+                case 7 -> handleFindByCustomerStream();
+                case 8 -> handleTotalPremiumForType();
+                case 9 -> handleCountByType();
+                case 10 -> handleExpiringSoonStream();
+                case 11 -> handleCustomerWithMostPolicies();
+                case 12 -> handleTop5ByPremium();
+                case 13 -> running = false;
+                default -> System.out.println("That is not a valid option. Pick 1-13.");
             }
         }
         sc.close();
     }
 
     /**
-     * Demo Hardcoded Data for checking menu options
+     * Loads the fixed Assignment 8 sample data so every fresher's output
+     * can be checked against the same worked example.
      */
 
     private void seedData() {
-        register.add(new CarPolicy("POL-2001", new Customer("Ravi Kumar", 22),
-                LocalDate.of(2026, 8, 15), "REG-2001", 1));
-        register.add(new TruckPolicy("POL-2002", new Customer("Ravi Kumar", 22),
-                LocalDate.of(2026, 9, 1), 8.0, 0));
-        register.add(new BikePolicy("POL-2003", new Customer("Meena Iyer", 34),
-                LocalDate.of(2026, 8, 20), 150, 2));
-        register.add(new CarPolicy("POL-2004", new Customer("Ajay Verma", 41),
-                LocalDate.of(2027, 1, 10), "REG-2004", 0));
-        register.add(new BikePolicy("POL-2005", new Customer("Sneha Rao", 29),
-                LocalDate.of(2026, 8, 25), 200, 0));
-        register.add(new CarPolicy("POL-2006", new Customer("Ravi Kumar", 22),
-                LocalDate.of(2026, 12, 1), "REG-2006", 3));
+        register.add(new CarPolicy(
+                "POL-2001",
+                new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 8, 15),
+                "REG-2001", 1));
+
+        register.add(new TruckPolicy(
+                "POL-2002",
+                new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 9, 1),
+                8.0, 0));
+
+        register.add(new BikePolicy(
+                "POL-2003",
+                new Customer("Meena Iyer", 34),
+                LocalDate.of(2026, 8, 20),
+                150, 2));
+
+        register.add(new CarPolicy(
+                "POL-2004",
+                new Customer("Ajay Verma", 41),
+                LocalDate.of(2027, 1, 10),
+                "REG-2004", 0));
+
+        register.add(new BikePolicy(
+                "POL-2005",
+                new Customer("Sneha Rao", 29),
+                LocalDate.of(2026, 8, 25),
+                200, 0));
+
+        register.add(new CarPolicy(
+                "POL-2006",
+                new Customer("Ravi Kumar", 22),
+                LocalDate.of(2026, 12, 1),
+                "REG-2006", 3));
     }
+
     private void printMenu() {
         System.out.println("\n===== Policy Register =====");
         System.out.println("1. Add policy");
@@ -89,10 +123,18 @@ public class PremiumCalculatorApp {
         System.out.println("3. View policies by vehicle type");
         System.out.println("4. View policies expiring soon");
         System.out.println("5. View premium summary by vehicle type");
-        System.out.println("6. Exit");
+        System.out.println("--- Assignment 8 (streams) ---");
+        System.out.println("6. Find a policy by number");
+        System.out.println("7. Find policies for a customer (stream)");
+        System.out.println("8. Total premium for a vehicle type");
+        System.out.println("9. Count policies per vehicle type");
+        System.out.println("10. Policies expiring within N days of reference date");
+        System.out.println("11. Customer with the most policies");
+        System.out.println("12. Top 5 policies by premium");
+        System.out.println("13. Exit");
     }
 
-    //Multiple Handlers - each method is responsible for one action done by the user
+    //  Assignment 7 handlers
 
     /**
      * Collects policy information from the user, creates the appropriate
@@ -205,7 +247,91 @@ public class PremiumCalculatorApp {
         }
     }
 
-    // These are Helper methods which are used for displaying policy information.
+    //  Assignment 8 handlers - each uses a stream method, catches its own errors
+
+    /** Find a policy by number - uses Optional, (no crash if missing). */
+    private void handleFindByNumber() {
+        System.out.print("Enter policy number: ");
+        String number = sc.nextLine().trim();
+        String result = register.findByPolicyNumber(number)
+                .map(p -> p.getPolicyDetails())
+                .orElse("No policy found with number " + number);
+        System.out.println(result);
+    }
+
+    /** Find all policies for a customer, using the stream method. */
+    private void handleFindByCustomerStream() {
+        System.out.print("Enter customer name: ");
+        String name = sc.nextLine().trim();
+        List<Policy> list = register.findByCustomerName(name);
+        if (list.isEmpty()) {
+            System.out.println("No policies found for " + name);
+            return;
+        }
+        for (Policy p : list) {
+            printPolicyLine(p);
+        }
+    }
+
+    /** Total premium for one vehicle type. */
+    private void handleTotalPremiumForType() {
+        VehicleType type = readVehicleType();
+        double total = register.totalPremiumByVehicleType(type);
+        System.out.println(type + " total premium: " + total);
+    }
+
+    /** Count of policies per vehicle type. */
+    private void handleCountByType() {
+        Map<VehicleType, Long> counts = register.countPoliciesByVehicleType();
+        System.out.println("Policy count by vehicle type:");
+        for (Map.Entry<VehicleType, Long> entry : counts.entrySet()) {
+            System.out.println("  " + entry.getKey() + ": " + entry.getValue());
+        }
+    }
+
+    /** Policies expiring within N days of the fixed reference date, sorted soonest first. */
+    private void handleExpiringSoonStream() {
+        int days = readInt("Enter number of days: ");
+        List<Policy> list = register.policiesExpiringWithin(days, REFERENCE_DATE);
+        if (list.isEmpty()) {
+            System.out.println("No policies expiring within " + days + " days of " + REFERENCE_DATE);
+            return;
+        }
+        System.out.println("Policies expiring within " + days + " days of " + REFERENCE_DATE + " (soonest first):");
+        for (Policy p : list) {
+            System.out.println(p.getPolicyNumber()
+                    + " | " + p.getCustomer().getName()
+                    + " | " + p.getVehicleType()
+                    + " | expires " + p.getExpiryDate());
+        }
+    }
+
+    /** Customer holding the most policies - uses Optional. */
+    private void handleCustomerWithMostPolicies() {
+        String result = register.customerWithMostPolicies()
+                .map(name -> name + " holds the most policies")
+                .orElse("No policies yet");
+        System.out.println(result);
+    }
+
+    /** Top 5 policies by premium, highest first. */
+    private void handleTop5ByPremium() {
+        List<Policy> list = register.top5ByPremium();
+        if (list.isEmpty()) {
+            System.out.println("No policies yet.");
+            return;
+        }
+        System.out.println("Top 5 policies by premium (highest first):");
+        for (Policy p : list) {
+            System.out.println(p.getPolicyNumber()
+                    + " | " + p.getCustomer().getName()
+                    + " | " + p.getVehicleType()
+                    + " -> " + noClaimCalculator.calculatePremium(p));
+        }
+    }
+
+    //  Display helpers (These are Helper methods which are used for displaying policy information.)
+
     /**
      * Shows basic details of a policy in one line.
      */
@@ -214,7 +340,7 @@ public class PremiumCalculatorApp {
         System.out.println("  " + p.getPolicyNumber()
                 + "  " + p.getCustomer().getName()
                 + "  " + p.getVehicleType()
-                + "  premium " + standardCalculator.calculatePremium(p)
+                + "  premium " + noClaimCalculator.calculatePremium(p)
                 + "  expires " + p.getExpiryDate());
     }
 
@@ -227,7 +353,10 @@ public class PremiumCalculatorApp {
                 + e.getPolicyNumber() + ": " + e.getMessage());
     }
 
-    // These methods are used to read input from the user.
+    // ----------------------------------------------------------------------------
+    //  Input reading helpers (These methods are used to read input from the user.)
+    // ----------------------------------------------------------------------------
+
     /**
      * Collects customer information from the user.
      */
