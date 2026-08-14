@@ -136,9 +136,7 @@ public class PolicyRegister {
         return policies.values();
     }
 
-    // ------------------------------------------------------------
     //  Assignment 8 - stream based query methods
-    // ------------------------------------------------------------
 
     /**
      * Assignment 8: Finds a policy by number without throwing.
