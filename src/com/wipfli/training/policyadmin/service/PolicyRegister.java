@@ -6,13 +6,8 @@ import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.EnumMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Stores policies and provides quick ways to find them
@@ -22,13 +17,12 @@ import java.util.EnumMap;
 
 public class PolicyRegister {
 
-
     private final Map<String, Policy> policies = new HashMap<>();
 
     private final Map<String, List<Policy>> policiesByCustomer = new HashMap<>();
 
-//    private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
-     private final Map<VehicleType, List<Policy>> policiesByVehicleType = new EnumMap<>(VehicleType.class);
+    // private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
+    private final Map<VehicleType, List<Policy>> policiesByVehicleType = new EnumMap<>(VehicleType.class);
 
     private final TreeMap<LocalDate, List<Policy>> policiesByExpiryDate = new TreeMap<>();
 
@@ -81,10 +75,7 @@ public class PolicyRegister {
         return policy;
     }
 
-    /**
-     * Returns all policies for a customer.
-     * Returns an empty list if none are found.
-     */
+    /** Returns all policies for a customer. Empty list if none. */
 
     public List<Policy> findByCustomer(String customerName) {
         List<Policy> list = policiesByCustomer.get(customerName);
@@ -94,10 +85,7 @@ public class PolicyRegister {
         return list;
     }
 
-    /**
-     * Returns all policies for a vehicle type.
-     * Returns an empty list if none are found.
-     */
+    /** Returns all policies for a vehicle type. Empty list if none. */
 
     public List<Policy> findByVehicleType(VehicleType vehicleType) {
         List<Policy> list = policiesByVehicleType.get(vehicleType);
@@ -108,20 +96,16 @@ public class PolicyRegister {
     }
 
     /**
-     * Returns all policies that will expire within the given number of days from the start date.
-     * The list is sorted by expiry date. (nearest first)
-     * Returns an empty list if none are found.
-     * Using subMap so the TreeMap gives us only the dates in range directly.
+     * Returns all policies expiring within the given number of days from the start date,
+     * sorted by expiry date (nearest first). Uses subMap to grab only the dates in range.
      */
 
     public List<Policy> findExpiringWithin(int days, LocalDate from) {
         LocalDate cutoff = from.plusDays(days);
         List<Policy> result = new ArrayList<>();
 
-    // subMap grabs only the dates between 'from' and 'cutoff'.
-    // 'true, true' means both ends are included.
-        for (List<Policy> policiesOnDate : policiesByExpiryDate.subMap
-                (from, true, cutoff, true).values()) {
+        // subMap grabs only the dates between 'from' and 'cutoff' (both inclusive).
+        for (List<Policy> policiesOnDate : policiesByExpiryDate.subMap(from, true, cutoff, true).values()) {
             result.addAll(policiesOnDate);
         }
         return result;
@@ -147,7 +131,98 @@ public class PolicyRegister {
     }
 
     /** Returns all policies, so the menu can list them. */
+
     public Collection<Policy> getAll() {
         return policies.values();
+    }
+
+    // ------------------------------------------------------------
+    //  Assignment 8 - stream based query methods
+    // ------------------------------------------------------------
+
+    /**
+     * Assignment 8: Finds a policy by number without throwing.
+     * Returns an Optional - empty if no policy matches.
+     */
+
+    public Optional<Policy> findByPolicyNumber(String policyNumber) {
+        return policies.values().stream()
+                .filter(p -> p.getPolicyNumber().equals(policyNumber))
+                .findFirst();
+    }
+
+    /**
+     * Assignment 8: Finds all policies for a customer, using a stream.
+     */
+
+    public List<Policy> findByCustomerName(String customerName) {
+        return policies.values().stream()
+                .filter(p -> p.getCustomer().getName().equals(customerName))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Assignment 8: Total premium for one vehicle type, using a stream.
+     */
+
+    public double totalPremiumByVehicleType(VehicleType vehicleType) {
+        NoClaimBonusCalculator calculator = new NoClaimBonusCalculator();
+        return policies.values().stream()
+                .filter(p -> p.getVehicleType() == vehicleType)
+                .mapToDouble(p -> calculator.calculatePremium(p))
+                .sum();
+    }
+
+    /**
+     * Assignment 8: Counts policies per vehicle type, using groupingBy.
+     */
+
+    public Map<VehicleType, Long> countPoliciesByVehicleType() {
+        return policies.values().stream()
+                .collect(Collectors.groupingBy(
+                        Policy::getVehicleType,
+                        Collectors.counting()));
+    }
+
+    /**
+     * Assignment 8: Policies expiring within N days of the reference date,
+     * sorted soonest first, using a stream.
+     */
+
+    public List<Policy> policiesExpiringWithin(int days, LocalDate referenceDate) {
+        LocalDate cutoff = referenceDate.plusDays(days);
+        return policies.values().stream()
+                .filter(p -> !p.getExpiryDate().isBefore(referenceDate)
+                        && !p.getExpiryDate().isAfter(cutoff))
+                .sorted(Comparator.comparing(Policy::getExpiryDate))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Assignment 8: The customer holding the most policies, using a stream.
+     * Returns an Optional because there might be no policies at all.
+     */
+
+    public Optional<String> customerWithMostPolicies() {
+        return policies.values().stream()
+                .collect(Collectors.groupingBy(
+                        p -> p.getCustomer().getName(),
+                        Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey);
+    }
+
+    /**
+     * Assignment 8: The 5 highest-premium policies, highest first, using a stream.
+     */
+
+    public List<Policy> top5ByPremium() {
+        NoClaimBonusCalculator calculator = new NoClaimBonusCalculator();
+        return policies.values().stream()
+                .sorted(Comparator.comparingDouble(
+                        (Policy p) -> calculator.calculatePremium(p)).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
     }
 }
