@@ -144,11 +144,8 @@ public class PolicyRegister {
      */
 
     public Optional<Policy> findByPolicyNumber(String policyNumber) {
-        return policies.values().stream()
-                .filter(p -> p.getPolicyNumber().equals(policyNumber))
-                .findFirst();
+        return Optional.ofNullable(policies.get(policyNumber));
     }
-
     /**
      * Assignment 8: Finds all policies for a customer, using a stream.
      */

@@ -353,10 +353,7 @@ public class PremiumCalculatorApp {
                 + e.getPolicyNumber() + ": " + e.getMessage());
     }
 
-    // ----------------------------------------------------------------------------
     //  Input reading helpers (These methods are used to read input from the user.)
-    // ----------------------------------------------------------------------------
-
     /**
      * Collects customer information from the user.
      */
