@@ -23,7 +23,9 @@ class PolicyRegisterTest {
 
     @BeforeEach
     void setUp() {
-        register = new PolicyRegister();
+        // Assignment 10: Injecting a calculator into PolicyRegister
+        PremiumCalculable calculator = new NoClaimBonusCalculator(new StandardPremiumCalculator());
+        register = new PolicyRegister(calculator);
         register.add(TestFixtures.pol2001());
         register.add(TestFixtures.pol2002());
         register.add(TestFixtures.pol2003());

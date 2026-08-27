@@ -19,7 +19,8 @@ class NoClaimBonusCalculatorTest {
     @BeforeEach
     void setUp() {
         standard = new StandardPremiumCalculator();
-        noClaim = new NoClaimBonusCalculator();
+        // Assignment 10: NoClaimBonusCalculator now wraps another calculator.
+        noClaim = new NoClaimBonusCalculator(standard);
     }
 
     @Test
