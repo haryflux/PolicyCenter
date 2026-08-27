@@ -2,15 +2,15 @@ package com.wipfli.training.policyadmin.app;
 
 import com.wipfli.training.policyadmin.exception.InvalidPolicyDataException;
 import com.wipfli.training.policyadmin.exception.PolicyBusinessException;
-import com.wipfli.training.policyadmin.model.BikePolicy;
-import com.wipfli.training.policyadmin.model.CarPolicy;
 import com.wipfli.training.policyadmin.model.Customer;
 import com.wipfli.training.policyadmin.model.Policy;
-import com.wipfli.training.policyadmin.model.TruckPolicy;
 import com.wipfli.training.policyadmin.model.VehicleType;
 import com.wipfli.training.policyadmin.service.PolicyRegister;
 import com.wipfli.training.policyadmin.service.PolicyValidator;
 import com.wipfli.training.policyadmin.service.NoClaimBonusCalculator;
+import com.wipfli.training.policyadmin.service.StandardPremiumCalculator;
+import com.wipfli.training.policyadmin.service.PremiumCalculable;
+import com.wipfli.training.policyadmin.service.PolicyFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -32,8 +32,13 @@ import java.util.Scanner;
 
 public class PremiumCalculatorApp {
 
-    private final PolicyRegister register = new PolicyRegister();
-    private final NoClaimBonusCalculator noClaimCalculator = new NoClaimBonusCalculator();
+    // Assignment 10: composition root - build the calculator chain once.
+    // A NoClaimBonusCalculator (Decorator) wrapping a StandardPremiumCalculator (Strategy),
+    // then injected into PolicyRegister.
+    private final PremiumCalculable standardCalculator = new StandardPremiumCalculator();
+    private final PremiumCalculable discountedCalculator = new NoClaimBonusCalculator(standardCalculator);
+    private final PolicyRegister register = new PolicyRegister(discountedCalculator);
+
     private final Scanner sc = new Scanner(System.in);
     private static final LocalDate REFERENCE_DATE = LocalDate.of(2026, 8, 9);
 
@@ -79,37 +84,38 @@ public class PremiumCalculatorApp {
      */
 
     private void seedData() {
-        register.add(new CarPolicy(
+        // Assignment 10: build policies through PolicyFactory instead of new XPolicy(...)
+        register.add(PolicyFactory.createCarPolicy(
                 "POL-2001",
                 new Customer("Ravi Kumar", 22),
                 LocalDate.of(2026, 8, 15),
                 "REG-2001", 1));
 
-        register.add(new TruckPolicy(
+        register.add(PolicyFactory.createTruckPolicy(
                 "POL-2002",
                 new Customer("Ravi Kumar", 22),
                 LocalDate.of(2026, 9, 1),
                 8.0, 0));
 
-        register.add(new BikePolicy(
+        register.add(PolicyFactory.createBikePolicy(
                 "POL-2003",
                 new Customer("Meena Iyer", 34),
                 LocalDate.of(2026, 8, 20),
                 150, 2));
 
-        register.add(new CarPolicy(
+        register.add(PolicyFactory.createCarPolicy(
                 "POL-2004",
                 new Customer("Ajay Verma", 41),
                 LocalDate.of(2027, 1, 10),
                 "REG-2004", 0));
 
-        register.add(new BikePolicy(
+        register.add(PolicyFactory.createBikePolicy(
                 "POL-2005",
                 new Customer("Sneha Rao", 29),
                 LocalDate.of(2026, 8, 25),
                 200, 0));
 
-        register.add(new CarPolicy(
+        register.add(PolicyFactory.createCarPolicy(
                 "POL-2006",
                 new Customer("Ravi Kumar", 22),
                 LocalDate.of(2026, 12, 1),
@@ -155,15 +161,18 @@ public class PremiumCalculatorApp {
             switch (vehicleType) {
                 case CAR -> {
                     System.out.print("Car Registration Number (e.g. KA-05-1234): ");
-                    policy = new CarPolicy(policyNumber, customer, expiryDate, sc.nextLine().trim(), claims);
+                    // Assignment 10: build via PolicyFactory, not new CarPolicy(...)
+                    policy = PolicyFactory.createCarPolicy(policyNumber, customer, expiryDate, sc.nextLine().trim(), claims);
                 }
                 case BIKE -> {
                     int engineCC = readInt("Bike Engine Size (CC): ");
-                    policy = new BikePolicy(policyNumber, customer, expiryDate, engineCC, claims);
+                    // Assignment 10: build via PolicyFactory, not new BikePolicy(...)
+                    policy = PolicyFactory.createBikePolicy(policyNumber, customer, expiryDate, engineCC, claims);
                 }
                 case TRUCK -> {
                     double loadTons = readDouble("Truck Load Capacity (tons): ");
-                    policy = new TruckPolicy(policyNumber, customer, expiryDate, loadTons, claims);
+                    // Assignment 10: build via PolicyFactory, not new TruckPolicy(...)
+                    policy = PolicyFactory.createTruckPolicy(policyNumber, customer, expiryDate, loadTons, claims);
                 }
                 default -> throw new InvalidPolicyDataException(policyNumber, "Unknown vehicle type.");
             }
@@ -326,7 +335,7 @@ public class PremiumCalculatorApp {
             System.out.println(p.getPolicyNumber()
                     + " | " + p.getCustomer().getName()
                     + " | " + p.getVehicleType()
-                    + " -> " + noClaimCalculator.calculatePremium(p));
+                    + " -> " + discountedCalculator.calculatePremium(p));
         }
     }
 
@@ -340,7 +349,7 @@ public class PremiumCalculatorApp {
         System.out.println("  " + p.getPolicyNumber()
                 + "  " + p.getCustomer().getName()
                 + "  " + p.getVehicleType()
-                + "  premium " + noClaimCalculator.calculatePremium(p)
+                + "  premium " + discountedCalculator.calculatePremium(p)
                 + "  expires " + p.getExpiryDate());
     }
 
