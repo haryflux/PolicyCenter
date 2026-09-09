@@ -31,3 +31,5 @@ bin/
 
 ### IDE - IntelliJ full folder ###
 .idea/
+
+target/
