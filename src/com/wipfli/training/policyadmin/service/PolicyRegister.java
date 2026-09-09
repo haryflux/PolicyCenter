@@ -4,6 +4,8 @@ import com.wipfli.training.policyadmin.exception.DuplicatePolicyNumberException;
 import com.wipfli.training.policyadmin.exception.PolicyNotFoundException;
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
  * The premium calculator is injected through the constructor (Strategy pattern) -
  * this class depends on the PremiumCalculable interface, never on a specific calculator.
  */
+@Service
 public class PolicyRegister {
 
     private final Map<String, Policy> policies = new HashMap<>();
@@ -32,7 +35,11 @@ public class PolicyRegister {
     // such that this class depends on the PremiumCalculable interface, not a specific calculator.
     private final PremiumCalculable premiumCalculator;
 
-    public PolicyRegister(PremiumCalculable premiumCalculator) {
+    // Assignment 11: two beans (standardPremiumCalculator, noClaimBonusCalculator) implement
+    // PremiumCalculable, so Spring can't pick one automatically. @Qualifier tells it exactly
+    // which bean to inject here - the discounted (NoClaimBonusCalculator) chain, matching what
+    // the composition root always wired in manually in Assignment 10.
+    public PolicyRegister(@Qualifier("noClaimBonusCalculator") PremiumCalculable premiumCalculator) {
         this.premiumCalculator = premiumCalculator;
     }
 
