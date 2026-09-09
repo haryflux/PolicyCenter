@@ -12,24 +12,28 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Stores policies and provides quick ways to find them
- * by policy number, customer, vehicle type, and expiry date.
- * All 4 structures are updated through add().
+ * Holds the business rules for managing policies - things like "no duplicate
+ * policy numbers" and "you can't look up a policy that doesn't exist."
  *
- * The premium calculator is injected through the constructor (Strategy pattern) -
- * this class depends on the PremiumCalculable interface, never on a specific calculator.
+ * Assignment 11 change: this class used to own its storage directly (4 maps
+ * living right here). That's gone now. Storage has moved out into
+ * PolicyRepository / InMemoryPolicyRepository, and this class just asks that
+ * repository for whatever it needs. Nothing about WHAT this class decides
+ * (the rules) has changed - only WHERE the data physically lives.
+ *
+ * The premium calculator is still injected through the constructor (Strategy
+ * pattern) from Assignment 10 - this class depends on the PremiumCalculable
+ * interface, never on a specific calculator.
  */
 @Service
 public class PolicyRegister {
 
-    private final Map<String, Policy> policies = new HashMap<>();
-
-    private final Map<String, List<Policy>> policiesByCustomer = new HashMap<>();
-
-    // private final Map<VehicleType, List<Policy>> policiesByVehicleType = new HashMap<>();
-    private final Map<VehicleType, List<Policy>> policiesByVehicleType = new EnumMap<>(VehicleType.class);
-
-    private final TreeMap<LocalDate, List<Policy>> policiesByExpiryDate = new TreeMap<>();
+    // Assignment 11: the 4 maps that used to sit here (policies, policiesByCustomer,
+    // policiesByVehicleType, policiesByExpiryDate) are gone. They now live inside
+    // InMemoryPolicyRepository. This class no longer needs to know HOW policies are
+    // stored - it only needs to know that "something" can store and retrieve them,
+    // which is exactly what the PolicyRepository interface promises (Repository pattern).
+    private final PolicyRepository policyRepository;
 
     // Assignment 10 (Strategy): the calculator is injected through the constructor,
     // such that this class depends on the PremiumCalculable interface, not a specific calculator.
@@ -39,43 +43,33 @@ public class PolicyRegister {
     // PremiumCalculable, so Spring can't pick one automatically. @Qualifier tells it exactly
     // which bean to inject here - the discounted (NoClaimBonusCalculator) chain, matching what
     // the composition root always wired in manually in Assignment 10.
-    public PolicyRegister(@Qualifier("noClaimBonusCalculator") PremiumCalculable premiumCalculator) {
+    //
+    // policyRepository doesn't need a @Qualifier - there's only ONE class implementing
+    // PolicyRepository (InMemoryPolicyRepository), so Spring has no ambiguity to resolve there.
+    public PolicyRegister(PolicyRepository policyRepository,
+                          @Qualifier("noClaimBonusCalculator") PremiumCalculable premiumCalculator) {
+        this.policyRepository = policyRepository;
         this.premiumCalculator = premiumCalculator;
     }
 
     /**
-     * Adds a new policy and stores it in all required collections.
+     * Adds a new policy, after checking it isn't a duplicate.
      * @throws DuplicatePolicyNumberException if the policy number is already used
      */
     public void add(Policy policy) {
         String number = policy.getPolicyNumber();
-        if (policies.containsKey(number)) {
+
+        // This business rule ("no duplicate policy numbers") is untouched - same
+        // exception, same message. Only the mechanics of "how do I check" changed:
+        // it now asks the repository instead of poking a Map directly.
+        if (policyRepository.existsByNumber(number)) {
             throw new DuplicatePolicyNumberException(number, "a policy with this number is already registered");
         }
 
-        // 1. by number
-        policies.put(number, policy);
-
-        // 2. by customer
-        String customerName = policy.getCustomer().getName();
-        if (!policiesByCustomer.containsKey(customerName)) {
-            policiesByCustomer.put(customerName, new ArrayList<>());
-        }
-        policiesByCustomer.get(customerName).add(policy);
-
-        // 3. by vehicle type
-        VehicleType type = policy.getVehicleType();
-        if (!policiesByVehicleType.containsKey(type)) {
-            policiesByVehicleType.put(type, new ArrayList<>());
-        }
-        policiesByVehicleType.get(type).add(policy);
-
-        // 4. by expiry date
-        LocalDate expiry = policy.getExpiryDate();
-        if (!policiesByExpiryDate.containsKey(expiry)) {
-            policiesByExpiryDate.put(expiry, new ArrayList<>());
-        }
-        policiesByExpiryDate.get(expiry).add(policy);
+        // All 4 "which map do I file this under" bookkeeping now happens inside
+        // InMemoryPolicyRepository.save(). This one line replaces what used to be
+        // 4 separate blocks of manual map-filling here.
+        policyRepository.save(policy);
     }
 
     /**
@@ -83,44 +77,32 @@ public class PolicyRegister {
      * @throws PolicyNotFoundException if the policy is not found
      */
     public Policy findByNumber(String policyNumber) throws PolicyNotFoundException {
-        Policy policy = policies.get(policyNumber);
-        if (policy == null) {
-            throw new PolicyNotFoundException(policyNumber, "no policy with this number");
-        }
-        return policy;
+        // The repository only ever reports "found" or "not found" (via Optional) -
+        // it never throws. Deciding to turn a miss into a PolicyNotFoundException is
+        // a business decision, so that decision stays here, not in the repository.
+        return policyRepository.findByNumber(policyNumber)
+                .orElseThrow(() -> new PolicyNotFoundException(policyNumber, "no policy with this number"));
     }
 
     /** Returns all policies for a customer. Empty list if none. */
     public List<Policy> findByCustomer(String customerName) {
-        List<Policy> list = policiesByCustomer.get(customerName);
-        if (list == null) {
-            return new ArrayList<>();
-        }
-        return list;
+        // Straight delegation - no business rule here to preserve, just a lookup.
+        return policyRepository.findByCustomer(customerName);
     }
 
     /** Returns all policies for a vehicle type. Empty list if none. */
     public List<Policy> findByVehicleType(VehicleType vehicleType) {
-        List<Policy> list = policiesByVehicleType.get(vehicleType);
-        if (list == null) {
-            return new ArrayList<>();
-        }
-        return list;
+        return policyRepository.findByVehicleType(vehicleType);
     }
 
     /**
      * Returns all policies expiring within the given number of days from the start date,
-     * sorted by expiry date (nearest first). Uses subMap to grab only the dates in range.
+     * sorted by expiry date (nearest first).
      */
     public List<Policy> findExpiringWithin(int days, LocalDate from) {
-        LocalDate cutoff = from.plusDays(days);
-        List<Policy> result = new ArrayList<>();
-
-        // subMap grabs only the dates between 'from' and 'cutoff' (both inclusive).
-        for (List<Policy> policiesOnDate : policiesByExpiryDate.subMap(from, true, cutoff, true).values()) {
-            result.addAll(policiesOnDate);
-        }
-        return result;
+        // The subMap-walking logic moved into InMemoryPolicyRepository.findExpiringWithin(),
+        // since that's a storage-lookup detail, not a business rule.
+        return policyRepository.findExpiringWithin(days, from);
     }
 
     /**
@@ -130,20 +112,24 @@ public class PolicyRegister {
     public Map<VehicleType, Double> totalPremiumByVehicleType() {
         Map<VehicleType, Double> totals = new HashMap<>();
 
-        for (Map.Entry<VehicleType, List<Policy>> entry : policiesByVehicleType.entrySet()) {
+        // Assignment 11: we no longer loop over our own policiesByVehicleType map -
+        // we ask the repository "give me everyone of this vehicle type" instead.
+        for (VehicleType type : VehicleType.values()) {
             double total = 0.0;
-            for (Policy p : entry.getValue()) {
+            for (Policy p : policyRepository.findByVehicleType(type)) {
                 // Assignment 10: use the injected calculator instead of a local new StandardPremiumCalculator()
                 total += premiumCalculator.calculatePremium(p);
             }
-            totals.put(entry.getKey(), total);
+            totals.put(type, total);
         }
         return totals;
     }
 
     /** Returns all policies, so the menu can list them. */
     public Collection<Policy> getAll() {
-        return policies.values();
+        // Used to be policies.values() - now the repository is the one holding
+        // the actual collection, so we just ask it for everything.
+        return policyRepository.findAll();
     }
 
     //  Assignment 8 - stream based query methods
@@ -153,14 +139,20 @@ public class PolicyRegister {
      * Returns an Optional - empty if no policy matches.
      */
     public Optional<Policy> findByPolicyNumber(String policyNumber) {
-        return Optional.ofNullable(policies.get(policyNumber));
+        // The repository already returns an Optional itself, so this method now
+        // just hands that straight back - no extra wrapping needed.
+        return policyRepository.findByNumber(policyNumber);
     }
 
     /**
      * Assignment 8: Finds all policies for a customer, using a stream.
      */
     public List<Policy> findByCustomerName(String customerName) {
-        return policies.values().stream()
+        // Every stream method below follows the same one-line change: wherever we
+        // used to write "policies.values()" (our own map), we now write
+        // "policyRepository.findAll()" instead. The filtering/sorting/grouping
+        // logic after that is 100% unchanged business logic.
+        return policyRepository.findAll().stream()
                 .filter(p -> p.getCustomer().getName().equals(customerName))
                 .collect(Collectors.toList());
     }
@@ -169,7 +161,7 @@ public class PolicyRegister {
      * Assignment 8: Total premium for one vehicle type, using a stream and the injected calculator.
      */
     public double totalPremiumByVehicleType(VehicleType vehicleType) {
-        return policies.values().stream()
+        return policyRepository.findAll().stream()
                 .filter(p -> p.getVehicleType() == vehicleType)
                 // Assignment 10: use the injected calculator instead of a local new NoClaimBonusCalculator()
                 .mapToDouble(p -> premiumCalculator.calculatePremium(p))
@@ -180,7 +172,7 @@ public class PolicyRegister {
      * Assignment 8: Counts policies per vehicle type, using groupingBy.
      */
     public Map<VehicleType, Long> countPoliciesByVehicleType() {
-        return policies.values().stream()
+        return policyRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
                         Policy::getVehicleType,
                         Collectors.counting()));
@@ -192,7 +184,7 @@ public class PolicyRegister {
      */
     public List<Policy> policiesExpiringWithin(int days, LocalDate referenceDate) {
         LocalDate cutoff = referenceDate.plusDays(days);
-        return policies.values().stream()
+        return policyRepository.findAll().stream()
                 .filter(p -> !p.getExpiryDate().isBefore(referenceDate)
                         && !p.getExpiryDate().isAfter(cutoff))
                 .sorted(Comparator.comparing(Policy::getExpiryDate))
@@ -204,7 +196,7 @@ public class PolicyRegister {
      * Returns an Optional because there might be no policies at all.
      */
     public Optional<String> customerWithMostPolicies() {
-        return policies.values().stream()
+        return policyRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
                         p -> p.getCustomer().getName(),
                         Collectors.counting()))
@@ -218,7 +210,7 @@ public class PolicyRegister {
      * using a stream and the injected calculator.
      */
     public List<Policy> top5ByPremium() {
-        return policies.values().stream()
+        return policyRepository.findAll().stream()
                 // Assignment 10: use the injected calculator instead of a local new NoClaimBonusCalculator()
                 .sorted(Comparator.comparingDouble(
                         (Policy p) -> premiumCalculator.calculatePremium(p)).reversed())
