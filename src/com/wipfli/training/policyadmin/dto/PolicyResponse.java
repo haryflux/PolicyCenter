@@ -1,19 +1,16 @@
 package com.wipfli.training.policyadmin.dto;
 
 import com.wipfli.training.policyadmin.model.Policy;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 
 /**
- * Assignment 11: what we send BACK to the client after any policy operation
- * (create, expire, renew, record claim, lookup).
- *
- * Why we don't just return the Policy object directly: Policy is our internal
- * domain model - if we returned it as-is, every internal field/method would
- * become part of our public API forever, and any future change to Policy would
- * risk silently breaking whatever client is calling us. This DTO is the
- * boundary - we control exactly what a caller can see.
+ * Represents the policy details returned to the client after
+ * a policy operation. Includes policy information, customer
+ * details, claim history, and API response status information.
  */
+
 public class PolicyResponse {
 
     private String policyNumber;
@@ -24,15 +21,17 @@ public class PolicyResponse {
     private LocalDate expiryDate;
     private int previousClaims;
     private String details;
+    private APIStatus apiStatus;
 
     public PolicyResponse() {
     }
 
     /**
-     * Builds a response DTO from a real Policy object. Kept as a static factory
-     * method right here so every controller endpoint that returns a policy uses
-     * the exact same mapping - one place to change if a field is ever added.
+     * Creates a response object from the given policy.
+     * This method maps only policy-related fields and does not
+     * include API status information.
      */
+
     public static PolicyResponse from(Policy policy) {
         PolicyResponse response = new PolicyResponse();
         response.policyNumber = policy.getPolicyNumber();
@@ -42,7 +41,19 @@ public class PolicyResponse {
         response.customerAge = policy.getCustomer().getAge();
         response.expiryDate = policy.getExpiryDate();
         response.previousClaims = policy.getPreviousClaims();
-        response.details = policy.getPolicyDetails(); // polymorphic - each subtype's own wording
+        response.details = policy.getPolicyDetails();
+        return response;
+    }
+
+    /**
+     * Creates a response object with policy details and
+     * API status information. Useful for controller responses
+     * where both business data and request outcome need to be returned.
+     */
+
+    public static PolicyResponse from(Policy policy, HttpStatus httpStatus, String message) {
+        PolicyResponse response = from(policy);
+        response.apiStatus = APIStatus.success(httpStatus.value(), message);
         return response;
     }
 
@@ -76,5 +87,9 @@ public class PolicyResponse {
 
     public String getDetails() {
         return details;
+    }
+
+    public APIStatus getApiStatus() {
+        return apiStatus;
     }
 }

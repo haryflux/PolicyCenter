@@ -3,10 +3,11 @@ package com.wipfli.training.policyadmin.dto;
 import java.time.LocalDate;
 
 /**
- * Assignment 11: what a client sends us (as JSON) to create a new bike policy.
- * Same customer-inline approach as CreateCarPolicyRequest - see that file's
- * comment for why.
+ * Represents the data sent by the client to create a bike policy.
+ * Includes customer details, policy information, engine capacity,
+ * and previous claim history used during policy processing.
  */
+
 public class CreateBikePolicyRequest {
 
     private String policyNumber;

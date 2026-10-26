@@ -1,12 +1,11 @@
 package com.wipfli.training.policyadmin.dto;
 
 /**
- * Assignment 11: the response for "what would this policy's premium be?".
- * Shows BOTH numbers so it's obvious what the no-claim discount actually did -
- * standardPremium is the plain StandardPremiumCalculator result, discountedPremium
- * is what NoClaimBonusCalculator produces after wrapping it (Decorator pattern
- * from Assignment 10, still untouched here).
+ * Represents the premium details returned to the client.
+ * Includes the calculated standard premium, discounted premium,
+ * and the associated policy number.
  */
+
 public class PremiumResponse {
 
     private String policyNumber;

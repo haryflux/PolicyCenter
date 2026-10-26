@@ -3,13 +3,11 @@ package com.wipfli.training.policyadmin.dto;
 import java.time.LocalDate;
 
 /**
- * Assignment 11: what a client sends us (as JSON) to create a new car policy.
- * Note: your PolicyFactory/Customer design never stored customers separately -
- * a Customer is always built inline, right when a Policy is created. So instead
- * of a separate "create policyholder first" step, this request just carries the
- * customer's name and age alongside the policy details, matching how your code
- * actually works.
+ * Represents the data sent by the client to create a car policy.
+ * Includes customer details, policy information, vehicle registration
+ * details, and previous claim history used during policy processing.
  */
+
 public class CreateCarPolicyRequest {
 
     private String policyNumber;
@@ -17,10 +15,11 @@ public class CreateCarPolicyRequest {
     private int customerAge;
     private LocalDate expiryDate;
     private String registrationNumber;
-    private int previousClaims = 0; // defaults to 0, same as a brand new policy with no claim history
+    private int previousClaims = 0;
 
     // Jackson (Spring's JSON <-> Java converter) needs a no-arg constructor
     // plus getters/setters to turn incoming JSON into this object automatically.
+
     public CreateCarPolicyRequest() {
     }
 

@@ -1,11 +1,11 @@
 package com.wipfli.training.policyadmin.dto;
 
 /**
- * Assignment 11: the shape of every error response GlobalExceptionHandler sends
- * back. Kept deliberately simple - just enough for a client to know WHICH
- * policy the error is about and WHY, without leaking internal Java details
- * (stack traces, class names) to whoever is calling the API.
+ * Represents the error details returned to the client when
+ * a policy-related request cannot be processed successfully.
+ * Includes the policy number and a descriptive error message.
  */
+
 public class ErrorResponse {
 
     private String policyNumber;
