@@ -2,11 +2,12 @@ package com.wipfli.training.policyadmin.service;
 
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
+import org.springframework.stereotype.Service;
 
 /**
  * Calculates the standard insurance premium before applying any no-claim discount.
  */
-
+@Service
 public class StandardPremiumCalculator implements PremiumCalculable {
 
     private static final int CLAIM_SURCHARGE = 150;

@@ -1,12 +1,14 @@
 package com.wipfli.training.policyadmin.service;
 
 import com.wipfli.training.policyadmin.model.Policy;
+import org.springframework.stereotype.Service;
 
 /**
  * Assignment 10 (Decorator): a decorator that wraps another premium calculator
  * and applies a no-claim discount on top of whatever premium the wrapped
  * calculator returns. It reuses the wrapped calculator instead of duplicating its math.
  */
+@Service
 public class NoClaimBonusCalculator implements PremiumCalculable {
 
     private static final double NO_CLAIM_DISCOUNT_PERCENT = 0.10;
