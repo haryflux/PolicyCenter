@@ -2,6 +2,8 @@ package com.wipfli.training.policyadmin.service;
 
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
+import com.wipfli.training.policyadmin.repository.InMemoryPolicyRepository;
+import com.wipfli.training.policyadmin.repository.PolicyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

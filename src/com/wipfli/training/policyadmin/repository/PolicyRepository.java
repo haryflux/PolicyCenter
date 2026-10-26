@@ -1,4 +1,4 @@
-package com.wipfli.training.policyadmin.service;
+package com.wipfli.training.policyadmin.repository;
 
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Assignment 11: defines storage operations for policies, without specifying
- * how or where they're stored. PolicyRegister depends on this interface,
- * not on a specific storage implementation (Repository pattern).
+ * Defines the operations for storing and retrieving policies.
+ * Provides a contract for accessing policy data
+ * without exposing the underlying storage mechanism.
  */
+
 public interface PolicyRepository {
 
     void save(Policy policy);

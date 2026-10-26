@@ -4,6 +4,7 @@ import com.wipfli.training.policyadmin.exception.DuplicatePolicyNumberException;
 import com.wipfli.training.policyadmin.exception.PolicyNotFoundException;
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
+import com.wipfli.training.policyadmin.repository.PolicyRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

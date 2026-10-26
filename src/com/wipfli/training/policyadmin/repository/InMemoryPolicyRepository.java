@@ -1,4 +1,4 @@
-package com.wipfli.training.policyadmin.service;
+package com.wipfli.training.policyadmin.repository;
 
 import com.wipfli.training.policyadmin.model.Policy;
 import com.wipfli.training.policyadmin.model.VehicleType;
@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.util.*;
 
 /**
- * Assignment 11: the only place that physically stores policies in memory.
- * These 4 maps used to live directly inside PolicyRegister - they've been moved
- * here unchanged, so PolicyRegister can depend on the PolicyRepository interface
- * instead of owning storage itself (Repository pattern).
+ * In-memory implementation of the PolicyRepository interface is used for storing and retrieving policies.
+ * Maintains different collections to enable efficient lookups
+ * based on various policy attributes.
  */
+
 @Repository
 public class InMemoryPolicyRepository implements PolicyRepository {
 
@@ -86,7 +86,7 @@ public class InMemoryPolicyRepository implements PolicyRepository {
         LocalDate cutoff = from.plusDays(days);
         List<Policy> result = new ArrayList<>();
 
-        // subMap grabs only the dates between 'from' and 'cutoff' (both inclusive).
+        // subMap grabs only the dates between 'from' and 'cutoff'.
         for (List<Policy> policiesOnDate : policiesByExpiryDate.subMap(from, true, cutoff, true).values()) {
             result.addAll(policiesOnDate);
         }
